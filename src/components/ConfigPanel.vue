@@ -126,13 +126,13 @@
       <div class="button-group">
         <button
           @click="handleConnect"
-          :disabled="isConnecting || appState.avatar.connected"
+          :disabled="isConnecting || allConnected"
           class="btn btn-primary"
         >
           {{
             isConnecting
               ? "连接中..."
-              : appState.avatar.connected
+              : allConnected
                 ? "已连接"
                 : "连接"
           }}
@@ -140,7 +140,7 @@
 
         <button
           @click="handleDisconnect"
-          :disabled="!appState.avatar.connected"
+          :disabled="!appState.avatar.connected && !asrConnected && !llmConnected"
           class="btn btn-secondary"
         >
           断开
@@ -210,9 +210,14 @@ const isConnecting = ref(false);
 const isSending = ref(false);
 const isTesting = ref(false);
 const isTestingAsr = ref(false);
+const asrConnected = ref(false);
+const llmConnected = ref(false);
 const supportedModels = SUPPORTED_LLM_MODELS;
 // 配置缓存 - 使用 shallowRef 优化性能
 const configCache = shallowRef<any>(null);
+
+// 计算属性：三项全部连接成功
+const allConnected = computed(() => appState.avatar.connected && asrConnected.value && llmConnected.value);
 
 // 计算属性：虚拟人是否正在说话
 const isSpeaking = computed(() => avatarState.value === "speak");
@@ -269,14 +274,63 @@ async function handleConnect() {
   if (isConnecting.value) return;
 
   isConnecting.value = true;
-  try {
-    await appStore.connectAvatar();
-  } catch (error) {
-    console.error("连接失败:", error);
-    alert("连接失败，请检查配置信息");
-  } finally {
-    isConnecting.value = false;
+  asrConnected.value = false;
+  llmConnected.value = false;
+  const results: string[] = [];
+
+  // 1. 连接数字人
+  if (appState.avatar.appId && appState.avatar.appSecret) {
+    try {
+      await appStore.connectAvatar();
+      results.push('数字人: 连接成功');
+    } catch (error: any) {
+      results.push(`数字人: 连接失败 - ${error?.message || error}`);
+    }
+  } else {
+    results.push('数字人: 配置不完整，跳过');
   }
+
+  // 2. 测试ASR
+  if (appState.asr.appId && appState.asr.secretKey) {
+    try {
+      const { testConnection } = useAsr({
+        provider: appState.asr.provider as AsrProvider,
+        appId: appState.asr.appId,
+        secretId: appState.asr.secretId,
+        secretKey: appState.asr.secretKey,
+      });
+      await testConnection();
+      asrConnected.value = true;
+      results.push('ASR: 连接成功');
+    } catch (error: any) {
+      results.push(`ASR: 连接失败 - ${error?.message || error}`);
+    }
+  } else {
+    results.push('ASR: 配置不完整，跳过');
+  }
+
+  // 3. 测试LLM
+  if (appState.llm.apiKey) {
+    try {
+      const findConfig = SUPPORTED_LLM_MODELS.find((item) => item.value === appState.llm.model) || { label: 'openai', baseURL: '' };
+      await llmService.testConnection({
+        provider: findConfig?.label as any,
+        model: appState.llm.model,
+        apiKey: appState.llm.apiKey,
+        baseURL: findConfig?.baseURL || '',
+        botId: appState.llm.botId,
+      });
+      llmConnected.value = true;
+      results.push('LLM: 连接成功');
+    } catch (error: any) {
+      results.push(`LLM: 连接失败 - ${error?.message || error}`);
+    }
+  } else {
+    results.push('LLM: 配置不完整，跳过');
+  }
+
+  isConnecting.value = false;
+  alert(results.join('\n'));
 }
 
 function handleDisconnect() {
@@ -288,8 +342,10 @@ function handleDisconnect() {
     stopAsr();
     appStore.stopVoiceInput();
   }
+  asrConnected.value = false;
   // 3. 断开LLM连接
   llmService.disconnect();
+  llmConnected.value = false;
   console.log("所有连接已断开");
 }
 
