@@ -260,5 +260,5 @@ onUnmounted(() => {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @media (max-width: 1023px) { .header { display: none; } .content { flex-direction: column; padding: 0; gap: 0; height: 100%; } .avatar-render { border: none; } .panel { display: none; } .subtitle { bottom: 160px; } }
-@media (max-width: 768px) { .input-area { padding: 6px 8px; } .input-container { border-radius: 22px; padding: 2px 2px 2px 14px; } .input-text { font-size: 14px; padding: 6px 0; max-height: 80px; } .btn { width: 36px; height: 36px; } .icon { width: 20px; height: 20px; } .control-panel { bottom: 70px; left: 8px; right: 8px; max-width: 600px; margin-left: auto; margin-right: auto; } .ctrl { font-size: 11px; height: 30px; } }
+@media (max-width: 768px) { .input-area { padding: 6px 8px; } .input-container { border-radius: 22px; padding: 2px 2px 2px 14px; } .input-text { font-size: 14px; padding: 6px 0; max-height: 80px; } .btn { width: 36px; height: 36px; } .icon { width: 20px; height: 20px; } .control-panel { bottom: 70px; left: 50%; transform: translateX(-50%); width: calc(100% - 16px); max-width: 600px; } .ctrl { font-size: 11px; height: 30px; } }
 </style>
