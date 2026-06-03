@@ -10,6 +10,7 @@ export const appState = reactive<AppState>({
   avatar: {
     appId: '',
     appSecret: '',
+    gatewayServer: '',
     connected: false,
     instance: null
   },
@@ -171,7 +172,7 @@ export class AppStore {
   // 切换容器（用于不同页面）
   async switchContainer(containerId: string, config?: any): Promise<void> {
     if (!appState.avatar.instance) {
-      await this.connectAvatar(containerId, config)
+      await this.connectAvatar(containerId)
       return
     }
 
@@ -182,15 +183,15 @@ export class AppStore {
       // 注意：SDK可能不支持动态切换容器，可能需要重新创建实例
       // 这里先尝试，如果不行则需要断开重连
       await this.disconnectAvatar()
-      await this.connectAvatar(containerId, config)
+      await this.connectAvatar(containerId)
     } catch (e) {
       console.error('切换容器失败，重新连接:', e)
       await this.disconnectAvatar()
-      await this.connectAvatar(containerId, config)
+      await this.connectAvatar(containerId)
     }
   }
 
-  async connectAvatar(containerId?: string, customConfig?: any): Promise<void> {
+  async connectAvatar(containerId?: string): Promise<void> {
     const { appId, appSecret } = appState.avatar
     if (!appId || !appSecret) {
       throw new Error('请先配置 AppId 和 AppSecret')
@@ -202,18 +203,10 @@ export class AppStore {
     }
 
     const container = containerId || avatarService.getContainerId()
-    const url = new URL(SDK_CONFIG.GATEWAY_URL)
+    const gatewayServer = appState.avatar.gatewayServer || SDK_CONFIG.GATEWAY_URL
+    const url = new URL(gatewayServer)
     url.searchParams.append('data_source', SDK_CONFIG.DATA_SOURCE)
     url.searchParams.append('custom_id', SDK_CONFIG.CUSTOM_ID)
-
-    // 合并配置
-    const finalConfig = customConfig ? { ...SDK_CONFIG.AVATAR_CONFIG, ...customConfig } : SDK_CONFIG.AVATAR_CONFIG
-
-    // 在 walk 和 custom-event 模式下禁用 ASR
-    if (appState.ui.mode === 'walk' || appState.ui.mode === 'custom-event') {
-      finalConfig.enable_asr = false
-      finalConfig.asr_enabled = false
-    }
 
     const constructorOptions: any = {
       containerId: `#${container}`,
@@ -222,7 +215,6 @@ export class AppStore {
       headers: { 'Authorization': '888jn' },
       enableDebugger: false,
       gatewayServer: url.toString(),
-      config: finalConfig,
       onProxyWidgetEvent: (event: any) => {
         if (event.type === 'subtitle_on') {
           appState.ui.subTitleText = event.text

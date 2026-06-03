@@ -36,7 +36,7 @@ export const ASR_CONFIG = {
 // 注意：APP_ID 和 APP_SECRET 从环境变量读取，本地开发时请在 .env.local 中配置
 // 这些敏感信息不会提交到代码仓库
 export const SDK_CONFIG = {
-  GATEWAY_URL: 'https://test-ttsa-gateway-lite.xmov.ai/api/session',
+  GATEWAY_URL: 'https://nebula-agent.xingyun3d.com/user/v1/ttsa/session',
   DATA_SOURCE: '2',
   CUSTOM_ID: 'demo',
   // 从环境变量读取，如果未配置则使用空字符串

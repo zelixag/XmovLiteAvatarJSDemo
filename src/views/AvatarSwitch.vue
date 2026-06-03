@@ -205,7 +205,7 @@ interface EnvironmentConfig {
 // 环境配置对象（借鉴参考项目）
 const envConfigs: Record<string, EnvironmentConfig> = {
   test: {
-    gatewayServer: 'https://test-ttsa-gateway-lite.xmov.ai/api/session',
+    gatewayServer: 'https://nebula-agent.xingyun3d.com/user/v1/ttsa/session',
     // 优先使用全局状态中的配置，否则使用默认值
     appId: appState?.avatar.appId || '',
     appSecret: appState?.avatar.appSecret || '',

@@ -42,7 +42,7 @@ export interface ChatMessage {
 
 // Store类型定义
 export interface AppStore {
-  connectAvatar(containerId?: string, customConfig?: any): Promise<void>;
+  connectAvatar(containerId?: string): Promise<void>;
   disconnectAvatar(): void;
   sendMessage(): Promise<string | undefined>;
   startVoiceInput(callbacks: AsrCallbacks): void;
@@ -74,6 +74,7 @@ export interface AppState {
   avatar: {
     appId: string;
     appSecret: string;
+    gatewayServer: string;
     connected: boolean;
     instance: any; // XmovAvatar SDK 实例（通过 window.XmovAvatar 创建）
   };
