@@ -237,7 +237,7 @@ onUnmounted(() => {
 .btn-send:hover:not(:disabled) { color: #fff; background: var(--accent); }
 .ctrl { flex: 1; min-width: 70px; height: 34px; font-size: 12px; letter-spacing: 0.06em; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: rgba(255,255,255,0.85); padding: 0 12px; }
 .ctrl:hover:not(:disabled) { background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.8); }
-.control-panel { position: absolute; bottom: 100px; left: var(--space-md); right: var(--space-md); z-index: 150; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 12px; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); }
+.control-panel { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 600px; z-index: 150; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 12px; background: rgba(0,0,0,0.35); backdrop-filter: blur(4px); }
 .control-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .icon { width: 18px; height: 18px; fill: currentColor; }
 .panel { width: 480px; background: var(--bg-primary); border-left: 1px solid var(--border-color); overflow-y: auto; transition: all 0.2s ease; display: flex; flex-direction: column; flex-shrink: 0; }
@@ -260,5 +260,5 @@ onUnmounted(() => {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @media (max-width: 1023px) { .header { display: none; } .content { flex-direction: column; padding: 0; gap: 0; height: 100%; } .avatar-render { border: none; } .panel { display: none; } .subtitle { bottom: 160px; } }
-@media (max-width: 768px) { .input-area { padding: 6px 8px; } .input-container { border-radius: 22px; padding: 2px 2px 2px 14px; } .input-text { font-size: 14px; padding: 6px 0; max-height: 80px; } .btn { width: 36px; height: 36px; } .icon { width: 20px; height: 20px; } .control-panel { bottom: 70px; left: 50%; transform: translateX(-50%); width: calc(100% - 16px); max-width: 600px; } .ctrl { font-size: 11px; height: 30px; } }
+@media (max-width: 768px) { .input-area { padding: 6px 8px; } .input-container { border-radius: 22px; padding: 2px 2px 2px 14px; } .input-text { font-size: 14px; padding: 6px 0; max-height: 80px; } .btn { width: 36px; height: 36px; } .icon { width: 20px; height: 20px; } .control-panel { bottom: 70px; width: calc(100% - 16px); } .ctrl { font-size: 11px; height: 30px; } }
 </style>
