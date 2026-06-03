@@ -95,6 +95,7 @@ export function createXunfeiRecognizer(
             if (jsonData.action === "started") {
               // 握手成功
               console.log("讯飞ASR握手成功");
+              callbacks.onReady?.();
             } else if (jsonData.action === "result") {
               // 转写结果
               const data = JSON.parse(jsonData.data);

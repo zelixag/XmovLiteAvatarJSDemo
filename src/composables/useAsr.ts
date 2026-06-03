@@ -68,37 +68,33 @@ export function useAsr(config: AsrConfig) {
   const testConnection = async (): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       try {
-        // 设置超时
         const TEST_TIMEOUT = 5000;
         let timeoutId: number | undefined;
 
-        // 测试成功后停止识别的处理
-        const handleSuccess = () => {
-          console.log("ASR服务连接测试成功：识别完成");
+        const handleReady = () => {
+          console.log("ASR服务连接测试成功");
           clearTimeout(timeoutId);
           stop();
           resolve(true);
         };
 
-        // 测试失败的处理
-        const handleError = () => {
-          console.error("ASR服务连接测试失败");
+        const handleError = (error: any) => {
+          console.error("ASR服务连接测试失败:", error);
           clearTimeout(timeoutId);
           stop();
-          reject(new Error("请检测ASR连接信息是否正确"));
+          reject(new Error(typeof error === 'string' ? error : "请检测ASR连接信息是否正确"));
         };
 
-        // 设置超时
         timeoutId = window.setTimeout(() => {
           console.error("ASR服务连接测试超时");
           stop();
           reject(new Error("请检测ASR连接信息是否正确"));
         }, TEST_TIMEOUT);
 
-        // 调用start方法进行测试
         console.log("开始ASR服务连接测试...");
         start({
-          onFinished: handleSuccess,
+          onReady: handleReady,
+          onFinished: handleReady,
           onError: handleError,
         });
       } catch (error) {

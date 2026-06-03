@@ -249,6 +249,7 @@ async function initConfig() {
   // 虚拟人配置
   appState.avatar.appId = config.avatar.appId;
   appState.avatar.appSecret = config.avatar.appSecret;
+  appState.avatar.gatewayServer = config.avatar.gatewayServer || '';
 
   // ASR配置 - 默认使用腾讯云
   const defaultAsrConfig = config.asr.tx;

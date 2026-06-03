@@ -166,6 +166,7 @@ export function createXmovRecognizer(
         speechRecognizer.OnRecognitionStart = (res: any) => {
           console.log("xmovASR识别开始", res);
           asrText.value = "";
+          callbacks.onReady?.();
         };
 
         // 启动 WebSocket 连接

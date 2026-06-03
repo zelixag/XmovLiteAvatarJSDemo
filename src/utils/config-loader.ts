@@ -6,6 +6,7 @@ const GLOBAL_KEY = 'XMOV_CONFIG';
 export interface AvatarConfig {
   appId: string;
   appSecret: string;
+  gatewayServer: string;
 }
 
 export interface AsrProviderConfig {
@@ -37,7 +38,8 @@ export interface AppConfig {
 const DEFAULT_CONFIG: AppConfig = {
   avatar: {
     appId: '',
-    appSecret: ''
+    appSecret: '',
+    gatewayServer: ''
   },
   asr: {
     tx: {

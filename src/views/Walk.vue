@@ -114,7 +114,7 @@ const appStoreInjected = appStore
 
 const appId = ref(appStateInjected?.avatar.appId || '')
 const appSecret = ref(appStateInjected?.avatar.appSecret || '')
-const gatewayServer = ref('https://test-ttsa-gateway-lite.xmov.ai/api/session')
+const gatewayServer = ref('https://nebula-agent.xingyun3d.com/user/v1/ttsa/session')
 
 // 独立的数字人实例（不共享）- 使用 shallowRef 优化性能
 const avatarInstance = shallowRef<any>(null)
