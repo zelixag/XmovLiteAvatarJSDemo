@@ -49,6 +49,7 @@ export function createDoubaoRecognizer(
         const asrCallbacks = {
           onRecognitionStart: () => {
             asrText.value = "";
+            callbacks.onReady?.();
           },
           onSentenceBegin: (event: any) => {
             const t = event?.result?.voice_text_str || "";

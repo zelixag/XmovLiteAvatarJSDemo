@@ -54,6 +54,7 @@ export function createTencentRecognizer(
 
         recognizer.OnRecognitionStart = () => {
           console.log("识别开始");
+          callbacks.onReady?.();
         };
 
         recognizer.OnSentenceBegin = (res: any) => {

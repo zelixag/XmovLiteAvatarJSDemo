@@ -238,8 +238,14 @@ export class AppStore {
         callbackRegistry.onVoiceStateChange.forEach(cb => cb(status))
       },
       onMessage: (error: any) => {
-        if (error?.code && error.code !== 0) {
+        const errorCode = error?.error_code ?? error?.code
+        if (errorCode && errorCode !== 0) {
+          const reason = error?.error_reason || error?.message || '未知错误'
           console.error('SDK错误:', error)
+          alert(`连接失败：${reason}`)
+          appState.avatar.connected = false
+          appState.avatar.instance = null
+          avatarInstance.value = null
         }
       }
     }

@@ -22,6 +22,7 @@ export interface AsrConfig {
 }
 
 export interface AsrCallbacks {
+  onReady?: () => void;
   onFinished: (text: string) => void;
   onError: (error: any) => void;
 }
