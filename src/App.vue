@@ -93,49 +93,53 @@ const activeComponent = computed(() => {
   overflow: hidden;
 }
 
-/* 模式切换器（PC 端） */
 .mode-switcher {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  gap: 12px;
+  gap: 0;
   z-index: 1001;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 8px 16px;
-  border-radius: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(10px);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  width: 100%;
+  padding: 0 var(--space-md);
+  justify-content: center;
 }
 
 .mode-btn {
-  padding: 8px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.2s;
-  background: #f0f0f0;
-  color: #666;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: var(--text-muted);
   width: auto;
   min-width: auto;
   white-space: nowrap;
 }
 
 .mode-btn:hover {
-  background: #e0e0e0;
-  color: #333;
+  color: var(--text-primary);
+  background: transparent;
+  border-bottom-color: var(--border-color);
 }
 
 .mode-btn-active {
-  background: #007bff;
-  color: white;
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+  background: transparent;
 }
 
 .mode-btn-active:hover {
-  background: #0056b3;
+  border-bottom-color: var(--text-primary);
+  background: transparent;
 }
-
 </style>

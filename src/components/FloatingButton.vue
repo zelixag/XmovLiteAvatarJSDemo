@@ -30,43 +30,42 @@ function togglePanel() {
 <style scoped>
 .floating-button {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #007bff;
-  border: none;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--text-primary);
+  background: var(--bg-primary);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   z-index: 1000;
 }
 
 .floating-button:hover {
-  background: #0056b3;
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-  transform: scale(1.05);
+  background: var(--text-primary);
+}
+
+.floating-button:hover .icon {
+  fill: var(--bg-primary);
 }
 
 .floating-button.active {
-  background: #dc3545;
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  border-color: var(--accent);
+  background: var(--accent);
 }
 
-.floating-button.active:hover {
-  background: #c82333;
-  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+.floating-button.active .icon {
+  fill: #fff;
 }
 
 .icon {
-  width: 24px;
-  height: 24px;
-  fill: white;
-  transition: transform 0.3s ease;
+  width: 20px;
+  height: 20px;
+  fill: var(--text-primary);
+  transition: transform 0.15s ease, fill 0.15s ease;
 }
 
 .floating-button.active .icon {

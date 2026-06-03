@@ -30,9 +30,10 @@
         <button
           @click="handleTestAsrConnection"
           :disabled="isTestingAsr"
-          class="btn btn-interrupt"
+          class="btn-connect-status"
+          :class="{ connected: asrConnected }"
         >
-          {{ isTestingAsr ? "测试中..." : "测试连通性" }}
+          {{ isTestingAsr ? "测试中..." : asrConnected ? "已连接" : "连接" }}
         </button>
       </div>
 
@@ -81,9 +82,10 @@
         <button
           @click="handleTestLlmConnection"
           :disabled="isTesting"
-          class="btn btn-interrupt"
+          class="btn-connect-status"
+          :class="{ connected: llmConnected }"
         >
-          {{ isTesting ? "测试中..." : "测试连通性" }}
+          {{ isTesting ? "测试中..." : llmConnected ? "已连接" : "连接" }}
         </button>
       </div>
 
@@ -458,7 +460,8 @@ async function handleTestLlmConnection() {
       baseURL: findConfig?.baseURL,
       botId: appState.llm.botId,
     });
-    alert("LLM连接成功");
+    llmConnected.value = true;
+    // 单个测试连接成功不弹窗，按钮状态会变化
   } catch (error) {
     console.error("LLM连接测试失败:", error);
     alert("请检测LLM连接信息是否正确");
@@ -488,7 +491,8 @@ async function handleTestAsrConnection() {
     });
 
     await testConnection();
-    alert("ASR服务连接测试成功");
+    asrConnected.value = true;
+    // 单个测试连接成功不弹窗，按钮状态会变化
   } catch (error) {
     console.error("ASR连接测试失败:", error);
     alert("请检测ASR连接信息是否正确");
@@ -541,49 +545,58 @@ function handleModelChange() {
   width: 420px;
   max-height: 100vh;
   overflow-y: auto;
-  padding: 24px;
-  background: #ffffff;
-  border-left: 1px solid #e0e0e0;
+  padding: var(--space-md);
+  background: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-lg);
   position: absolute;
   right: 0;
   top: 0;
   height: 100%;
   z-index: 999;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .config-section,
 .control-section,
 .message-section {
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  padding: 16px;
-  background: #fafafa;
+  border: none;
+  border-bottom: 1px solid var(--border-color-light);
+  padding: 0 0 var(--space-md) 0;
+  background: transparent;
+}
+
+.config-section:last-child,
+.control-section:last-child,
+.message-section:last-child {
+  border-bottom: none;
 }
 
 .section-title {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 8px;
+  margin: 0 0 var(--space-md) 0;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: none;
+  padding-bottom: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 .section-title h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-md);
 }
 
 .form-group:last-child {
@@ -592,29 +605,34 @@ function handleModelChange() {
 
 label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #555;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
 }
 
 input,
 select,
 textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 0;
   font-size: 14px;
-  transition: border-color 0.2s;
+  background: transparent;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  border-bottom-color: var(--text-primary);
+  border-bottom-width: 2px;
+  box-shadow: none;
 }
 
 textarea {
@@ -622,79 +640,96 @@ textarea {
   min-height: 80px;
 }
 
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='%239a9a9a' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 16px;
+  padding-right: 24px;
+}
+
 .button-group {
   display: flex;
-  gap: 12px;
+  gap: var(--space-sm);
   justify-content: flex-end;
 }
 
 .btn {
   flex: 1;
   padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: var(--text-primary);
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
 .btn-primary:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-.btn-secondary {
-  background: #6c757d;
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #545b62;
-}
-
-.btn-voice {
-  background: #28a745;
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .btn-voice:hover:not(:disabled) {
-  background: #1e7e34;
-}
-
-.btn-interrupt {
-  background: #dc3545;
-  color: white;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
 .btn-interrupt:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
-/* 滚动条美化 */
-.config-panel::-webkit-scrollbar {
-  width: 6px;
+.btn-connect-status {
+  padding: 4px 12px;
+  border: 1px solid var(--text-primary);
+  border-radius: 0;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: var(--text-primary);
+  flex: none;
+  width: auto;
+  min-width: 56px;
+  white-space: nowrap;
+  margin-left: auto;
 }
 
-.config-panel::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.btn-connect-status:hover:not(:disabled) {
+  background: var(--text-primary);
+  color: var(--bg-primary);
 }
 
-.config-panel::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+.btn-connect-status.connected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 
-.config-panel::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+.btn-connect-status.connected:hover:not(:disabled) {
+  background: var(--accent-muted);
+  border-color: var(--accent-muted);
+}
+
+.btn-connect-status:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 </style>
