@@ -12,7 +12,7 @@
           <div id="walk-avatar" class="avatar-display"></div>
           <div v-if="loading" class="loading-overlay">
             <div class="progress-panel">
-              <div class="progress-label">加载进度</div>
+              <div class="progress-label">加载中</div>
               <div class="progress-bar-container">
                 <div class="progress-bar" :style="{ width: progress + '%' }"></div>
               </div>
@@ -24,80 +24,44 @@
 
       <!-- 右侧：控制面板 -->
       <div class="right-panel">
-        <!-- SDK 控制 -->
-        <div class="sdk-section">
-          <h3>SDK 控制</h3>
-          <div class="button-group toggle-group">
-            <button class="btn-toggle btn-param" :class="{ active: showParams }" @click="showParams = true">
-              参数
+        <!-- 连接 -->
+        <div class="section">
+          <div class="section-row">
+            <button class="btn" @click="connectAvatar" :disabled="loading || !!avatarInstance">
+              {{ loading ? '连接中...' : avatarInstance ? '已连接' : '连接' }}
             </button>
-            <button class="btn-toggle btn-connect" :class="{ active: !showParams }" @click="showParams = false">
-              连接
-            </button>
+            <button class="btn" @click="disconnectAvatar" :disabled="!avatarInstance">断开</button>
+            <button class="btn btn-sm" @click="showParams = !showParams" :class="{ active: showParams }">参数</button>
           </div>
           <div v-if="showParams" class="params-panel">
-            <div class="param-item">
-              <label>App ID:</label>
-              <input v-model="appId" type="text" />
-            </div>
-            <div class="param-item">
-              <label>App Secret:</label>
-              <input v-model="appSecret" type="text" />
-            </div>
-            <div class="param-item">
-              <label>Gateway:</label>
-              <input v-model="gatewayServer" type="text" />
-            </div>
+            <div class="param-item"><input v-model="appId" type="text" placeholder="App ID" /></div>
+            <div class="param-item"><input v-model="appSecret" type="text" placeholder="App Secret" /></div>
+            <div class="param-item"><input v-model="gatewayServer" type="text" placeholder="Gateway" /></div>
           </div>
-          <div v-else class="connect-panel">
-            <div class="button-group">
-              <button class="btn btn-success" @click="connectAvatar" :disabled="loading || !!avatarInstance">
-                {{ loading ? '连接中...' : '连接' }}
-              </button>
-              <button class="btn btn-danger" @click="disconnectAvatar" :disabled="!avatarInstance">
-                断开
-              </button>
-            </div>
-          </div>
-          <div v-if="avatarInstance" class="status-info">
-            <p><strong>连接状态：</strong><span :class="['status', 'connected']">已连接</span></p>
-            <p v-if="walkState"><strong>行走状态：</strong><span :class="['status', walkState === 'walk_start' ? 'walking' : 'idle']">{{ walkState === 'walk_start' ? '行走中' : '空闲' }}</span></p>
+          <div v-if="avatarInstance" class="status-row">
+            <span class="status-dot connected"></span>已连接
+            <span v-if="walkState" class="status-divider">|</span>
+            <span v-if="walkState" class="status-dot" :class="walkState === 'walk_start' ? 'walking' : 'idle'"></span>
+            <span v-if="walkState">{{ walkState === 'walk_start' ? '行走中' : '空闲' }}</span>
           </div>
         </div>
 
-        <!-- 行走控制 -->
-        <div class="walk-section">
-          <h3>行走控制</h3>
-          <div class="position-panel">
-            <div class="position-label">当前位置</div>
-            <div class="position-indicator">
-              <div v-for="point in pointNames" :key="point" 
-                   :class="['position-dot', { active: currentPosition === point }]"
-                   @click="walkToPoint(point)"
-                   :disabled="!avatarInstance || walkState === 'walk_start'">
-                {{ point }}
-              </div>
-            </div>
-            <div class="status-value">{{ currentPosition ? `当前点位: ${currentPosition}` : '未设置' }}</div>
-          </div>
-          <div class="button-group walk-buttons">
-            <button v-for="point in pointNames" :key="point" 
-                    class="btn walk-btn" 
+        <!-- 点位 -->
+        <div class="section">
+          <div class="position-grid">
+            <button v-for="point in pointNames" :key="point"
+                    :class="['pos-btn', { active: currentPosition === point }]"
                     @click="walkToPoint(point)"
                     :disabled="!avatarInstance || walkState === 'walk_start'">
-              到点位 {{ point }}
+              {{ point }}
             </button>
           </div>
         </div>
 
-        <!-- 说话控制 -->
-        <div class="speak-section">
-          <h3>说话控制</h3>
-          <div class="control-group">
-            <label>说话内容（可包含行走指令）:</label>
-            <textarea v-model="speakText" class="speak-textarea" placeholder="输入要说的内容，可以使用SSML格式包含行走指令..." rows="6"></textarea>
-          </div>
-          <button class="btn btn-primary full-width" @click="speak" :disabled="!avatarInstance || walkState === 'walk_start'">说话</button>
+        <!-- 说话 -->
+        <div class="section">
+          <textarea v-model="speakText" class="speak-textarea" placeholder="说话内容（SSML）..." rows="3"></textarea>
+          <button class="btn full-width" @click="speak" :disabled="!avatarInstance || walkState === 'walk_start'">说话</button>
         </div>
       </div>
     </div>
@@ -135,19 +99,6 @@ const speakText = ref(`<speak>
 霜降已过，初冬将至。虽然天气渐冷，但荣成市旅游市场依然"热"力十足。频繁冲上热搜，在这背后是荣成市依托本地特色，精准深耕客源市场，优化营销策略，吸引更多游客"奔荣而来"探访"诗与远方"。
 </speak>`)
 
-// 配置常量 - 提取为常量避免重复创建
-const defaultLayout = {
-  container: { size: [1440, 810] },
-  avatar: { v_align: "center", h_align: "middle", scale: 0.3, offset_x: 0, offset_y: 0 }
-} as const;
-
-const defaultWalkConfig = {
-  min_x_offset: -500,
-  max_x_offset: 500,
-  walk_points: { A: -500, B: -400, C: -300, D: -200, E: -100, F: 0, G: 100, H: 200, I: 300, J: 400, K: 500 },
-  init_point: 0
-} as const;
-
 async function connectAvatar() {
   if (!appId.value || !appSecret.value) {
     alert('请先配置 AppId 和 AppSecret')
@@ -167,43 +118,12 @@ async function connectAvatar() {
       return
     }
 
-    const walkConfig = {
-      look_name: "FF008_6530_new",
-      tts_vcn_id: "XMOV_HN_TTS__4",
-      is_large_model: false,
-      sta_face_id: "F_CN02_yuxuan",
-      mp_service_id: "F_CN02_show52_walk_test",
-      figure_name: "SCF25_001",
-      lite_drive_style: "lively",
-      background_img: "https://media.youyan.xyz/youyan/images/shot_layer_library/2D_background/ppt_train_02__2D_background.png",
-      frame_rate: 24,
-      optional_emotion: "",
-      init_events: [{
-        data: {
-          axis_id: 1,
-          height: 1,
-          image: "https://media.xingyun3d.com/xingyun3d/general/litehuman/background_2D/jushen_v1_black_and_gold_style_office_02.png",
-          width: 1,
-          x_location: 0,
-          y_location: 0
-        },
-        type: "widget_pic"
-      }],
-      auto_ka: true,
-      render_preset: "1080x1920_fullbody",
-      layout: defaultLayout,
-      walk_config: defaultWalkConfig,
-      enable_asr: false,
-      asr_enabled: false
-    }
-
     // 创建独立的数字人实例
     avatarInstance.value = await appStoreInjected.createAvatarInstance({
       containerId,
       appId: appId.value,
       appSecret: appSecret.value,
       gatewayServer: gatewayServer.value,
-      config: walkConfig,
       useInvisibleMode: false,
       onStatusChange: (status: any) => {
         console.log('Walk Status:', status)
@@ -296,57 +216,50 @@ onUnmounted(() => {
 .header h2 { margin: 0 0 4px 0; font-family: var(--font-heading); font-weight: 400; font-size: 24px; letter-spacing: -0.01em; }
 .description { margin: 0; color: var(--text-muted); font-size: 13px; }
 .main-content { flex: 1; display: flex; gap: 0; padding: var(--space-md); overflow: hidden; }
-.left-panel { flex: 1; background: #000; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
-.right-panel { width: 480px; background: var(--bg-primary); border-left: 1px solid var(--border-color); padding: var(--space-md); overflow-y: auto; }
-.avatar-display-wrapper { width: 100%; height: 100%; position: relative; background: #000; }
+.left-panel { flex: 1; background: transparent; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
+.right-panel { width: 300px; background: var(--bg-primary); border-left: 1px solid var(--border-color); padding: var(--space-md); overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+.avatar-display-wrapper { width: 100%; height: 100%; position: relative; background: transparent; }
 .avatar-display { width: 100%; height: 100%; position: relative; }
 .avatar-display > div { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
 .avatar-display :deep(canvas), .avatar-display :deep(video) { width: 100%; height: 100%; object-fit: contain; display: block; }
-.loading-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.progress-panel { background: var(--bg-primary); padding: var(--space-md); text-align: center; min-width: 300px; border: 1px solid var(--border-color); }
-.progress-label { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
-.progress-bar-container { width: 100%; height: 4px; background: var(--border-color); overflow: hidden; margin-bottom: 10px; }
+.loading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.progress-panel { background: var(--bg-primary); padding: var(--space-md); text-align: center; min-width: 240px; border: 1px solid var(--border-color); }
+.progress-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.08em; text-transform: uppercase; }
+.progress-bar-container { width: 100%; height: 3px; background: var(--border-color); overflow: hidden; margin-bottom: 8px; }
 .progress-bar { height: 100%; background: var(--text-primary); transition: width 0.3s; }
 .progress-percentage { font-size: 14px; color: var(--text-primary); font-family: var(--font-mono); }
-.sdk-section, .walk-section, .speak-section { margin-bottom: var(--space-lg); padding-bottom: var(--space-md); border-bottom: 1px solid var(--border-color-light); }
-.sdk-section:last-child, .walk-section:last-child, .speak-section:last-child { border-bottom: none; }
-.sdk-section h3, .walk-section h3, .speak-section h3 { margin: 0 0 12px 0; font-family: var(--font-heading); font-size: 18px; font-weight: 400; letter-spacing: -0.01em; }
-.button-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.toggle-group { gap: 0; }
-.toggle-group .btn-toggle { margin: 0; }
-.connect-panel .button-group { flex-direction: row; gap: 8px; }
-.connect-panel .button-group .btn { flex: 1; height: 38px; padding: 8px 16px; }
-.btn-toggle { padding: 8px 16px; border: 1px solid var(--text-primary); cursor: pointer; font-size: 12px; transition: all 0.15s ease; font-weight: 400; letter-spacing: 0.04em; background: transparent; color: var(--text-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.btn-param.active, .btn-connect.active { background: var(--text-primary); color: var(--bg-primary); }
-.btn-param:hover:not(:disabled), .btn-connect:hover:not(:disabled) { background: var(--text-primary); color: var(--bg-primary); }
-.btn-toggle:disabled { opacity: 0.3; cursor: not-allowed; }
-.walk-buttons { flex-direction: column; }
-.walk-buttons button { width: 100%; }
-.btn { padding: 10px 20px; border: 1px solid var(--text-primary); cursor: pointer; font-size: 13px; transition: all 0.15s ease; min-width: 120px; width: auto; background: transparent; color: var(--text-primary); letter-spacing: 0.04em; }
+
+.section { padding-bottom: 16px; border-bottom: 1px solid var(--border-color-light); }
+.section:last-child { border-bottom: none; padding-bottom: 0; }
+.section-row { display: flex; gap: 6px; }
+.section-row .btn { flex: 1; }
+.section-row .btn-sm { flex: 0 0 auto; padding: 8px 14px; font-size: 12px; }
+.section-row .btn-sm.active { background: var(--text-primary); color: var(--bg-primary); }
+
+.btn { padding: 8px 16px; border: 1px solid var(--text-primary); cursor: pointer; font-size: 13px; transition: all 0.15s ease; background: transparent; color: var(--text-primary); letter-spacing: 0.04em; }
 .btn:hover:not(:disabled) { background: var(--text-primary); color: var(--bg-primary); }
 .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.params-panel, .connect-panel { margin-top: 12px; padding: var(--space-md); background: var(--bg-secondary); border: 1px solid var(--border-color); }
-.param-item { margin-bottom: 12px; }
-.param-item:last-child { margin-bottom: 0; }
-.param-item label { display: block; margin-bottom: 4px; font-size: 11px; color: var(--text-muted); font-weight: 400; letter-spacing: 0.06em; }
-.param-item input { width: 100%; padding: 8px 0; border: none; border-bottom: 1px solid var(--border-color); font-size: 14px; box-sizing: border-box; background: transparent; color: var(--text-primary); }
+.full-width { width: 100%; margin-top: 8px; }
+
+.params-panel { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.param-item input { width: 100%; padding: 6px 0; border: none; border-bottom: 1px solid var(--border-color); font-size: 13px; background: transparent; color: var(--text-primary); }
 .param-item input:focus { outline: none; border-bottom-color: var(--text-primary); border-bottom-width: 2px; }
-.full-width { width: 100%; }
-.status-info { margin-top: 12px; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); }
-.status-info p { margin: 4px 0; font-size: 13px; }
-.status { font-weight: 400; letter-spacing: 0.04em; }
-.status.connected { color: var(--accent); }
-.status.walking { color: var(--text-primary); }
-.status.idle { color: var(--text-muted); }
-.position-panel { text-align: center; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); margin-bottom: 12px; }
-.position-label { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
-.position-indicator { display: flex; justify-content: center; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
-.position-dot { width: 30px; height: 30px; border: 1px solid var(--text-primary); border-radius: 50%; background: transparent; color: var(--text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; font-size: 11px; font-family: var(--font-mono); }
-.position-dot:hover:not(:disabled) { background: var(--text-primary); color: var(--bg-primary); }
-.position-dot.active { background: var(--text-primary); color: var(--bg-primary); }
-.position-dot:disabled { opacity: 0.3; cursor: not-allowed; }
-.control-group { margin-bottom: 12px; }
-.control-group label { display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 400; }
-.speak-textarea { width: 100%; padding: 8px 0; border: none; border-bottom: 1px solid var(--border-color); font-family: var(--font-body); font-size: 14px; box-sizing: border-box; resize: vertical; background: transparent; color: var(--text-primary); }
+.param-item input::placeholder { color: var(--text-muted); }
+
+.status-row { margin-top: 10px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; letter-spacing: 0.04em; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+.status-dot.connected { background: var(--accent); }
+.status-dot.walking { background: var(--text-primary); }
+.status-dot.idle { background: var(--text-muted); }
+.status-divider { color: var(--border-color); }
+
+.position-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+.pos-btn { width: 100%; aspect-ratio: 1; border: 1px solid var(--border-color); background: transparent; color: var(--text-secondary); cursor: pointer; font-size: 11px; font-family: var(--font-mono); transition: all 0.15s ease; padding: 0; display: flex; align-items: center; justify-content: center; }
+.pos-btn:hover:not(:disabled) { border-color: var(--text-primary); color: var(--text-primary); }
+.pos-btn.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+.pos-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.speak-textarea { width: 100%; padding: 6px 0; border: none; border-bottom: 1px solid var(--border-color); font-family: var(--font-body); font-size: 13px; box-sizing: border-box; resize: vertical; background: transparent; color: var(--text-primary); margin-bottom: 4px; }
 .speak-textarea:focus { outline: none; border-bottom-color: var(--text-primary); border-bottom-width: 2px; }
+.speak-textarea::placeholder { color: var(--text-muted); }
 </style>

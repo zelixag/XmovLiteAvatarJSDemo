@@ -191,7 +191,6 @@ interface AvatarInstance {
   loading: boolean
   error: string | null
   status: 'disconnected' | 'online' | 'visible' | 'invisible'
-  config: any
 }
 
 // 环境配置接口（借鉴参考项目）
@@ -199,7 +198,7 @@ interface EnvironmentConfig {
   gatewayServer: string
   appId: string
   appSecret: string
-  avatars: Omit<AvatarInstance, 'instance' | 'loading' | 'error' | 'status'>[]
+  avatars: Omit<AvatarInstance, 'instance' | 'loading' | 'error' | 'status' | 'config'>[]
 }
 
 // 环境配置对象（借鉴参考项目）
@@ -213,114 +212,12 @@ const envConfigs: Record<string, EnvironmentConfig> = {
       {
         name: '数字人1',
         appId: appState?.avatar.appId || '',
-        appSecret: appState?.avatar.appSecret || '',
-        config:  {
-          "auto_ka": true,
-          "cleaning_text": true,
-          "emotion_version": "v1_version",
-          "figure_name": "SCF25_001",
-          "framedata_proto_version": 1,
-          "init_events": [
-            {
-              "axis_id": 100,
-              "height": 1.5763546798029555,
-              "image": "https://media.xingyun3d.com/avatar_sdk_material/F_MX01_show__1080x1920_fullbody__jiangyan_14019_new.png",
-              "type": "SetCharacterCanvasAnchor",
-              "width": 1.5743440233236152,
-              "x_location": -0.2857142857142857,
-              "y_location": -0.016420361247947456
-            },
-            {
-              "data": {
-                "axis_id": 1,
-                "height": 1,
-                "image": "https://media.xingyun3d.com/xingyun3d/general/litehuman/background_2D/jushen_v1_gradientstarsky_01.png",
-                "width": 1,
-                "x_location": 0,
-                "y_location": 0
-              },
-              "type": "widget_pic"
-            }
-          ],
-          "is_large_model": true,
-          "is_vertical": true,
-          "language": "chinese",
-          "lite_drive_style": "general",
-          "llm_name": "Doubao",
-          "look_name": "jiangyan_14019_new",
-          "mp_service_id": "F_MX01_show",
-          "optional_emotion": "smile,confused",
-          "pitch": 1,
-          "raw_audio": true,
-          "render_preset": "1080x1920_fullbody",
-          "resolution": {
-            "height": 1920,
-            "width": 1080
-          },
-          "sta_face_id": "F_CN06_liuyicen",
-          "tts_emotion": "happy,neutral,surprised,sad,angry",
-          "tts_speed": 1,
-          "tts_split_length": 16,
-          "tts_split_row": 1,
-          "tts_vcn_id": "XMOV_HN_TTS__50",
-          "volume": 1
-        }
+        appSecret: appState?.avatar.appSecret || ''
       },
       {
         name: '数字人2',
         appId: appState?.avatar.appId || '',
-        appSecret: appState?.avatar.appSecret || '',
-        config: {
-          "auto_ka": true,
-          "cleaning_text": true,
-          "emotion_version": "v2_version",
-          "figure_name": "SCM20_001",
-          "framedata_proto_version": 1,
-          "init_events": [
-            {
-              "data": {
-                "axis_id": 1,
-                "height": 1,
-                "image": "https://media.xingyun3d.com/xingyun3d/general/litehuman/background_2D/jushen_v1_dark_luxury_lounge_01.jpg",
-                "width": 1,
-                "x_location": 0,
-                "y_location": 0
-              },
-              "type": "widget_pic"
-            },
-            {
-              "axis_id": 100,
-              "height": 1.7520525451559934,
-              "image": "https://media.xingyun3d.com/avatar_sdk_material/M_MX01_show__1080x1920_fullbody__Suyuan_13389_new.png",
-              "type": "SetCharacterCanvasAnchor",
-              "width": 1.7520525451559934,
-              "x_location": -0.37317784256559766,
-              "y_location": -0.07717569786535304
-            }
-          ],
-          "is_large_model": false,
-          "is_vertical": true,
-          "language": "chinese",
-          "lite_drive_style": "lively",
-          "llm_name": "Doubao",
-          "look_name": "Suyuan_13389_new",
-          "mp_service_id": "M_MX01_show",
-          "optional_emotion": "surprise,sad,smile,angry",
-          "pitch": 1,
-          "raw_audio": true,
-          "render_preset": "1080x1920_fullbody",
-          "resolution": {
-            "height": 1920,
-            "width": 1080
-          },
-          "sta_face_id": "M_MX01_naigou",
-          "tts_emotion": "happy,neutral,surprised,sad",
-          "tts_speed": 1,
-          "tts_split_length": 16,
-          "tts_split_row": 1,
-          "tts_vcn_id": "XMOV_HN_TTS__47",
-          "volume": 1
-        }
+        appSecret: appState?.avatar.appSecret || ''
       }
     ]
   }
@@ -415,7 +312,6 @@ async function initAvatar(index: number, useInvisibleMode: boolean = false) {
       gatewayServer: gatewayServer.value,
       enableLogger: true,
       enableDebugger: false,
-      config: avatar.config,
       onStatusChange: (status: any) => {
         // 通过 avatars.value[index] 更新，确保 Vue 响应式生效
         if (index >= avatars.value.length) {

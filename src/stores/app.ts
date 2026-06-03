@@ -77,7 +77,6 @@ export class AppStore {
     appId: string
     appSecret: string
     gatewayServer?: string
-    config: any
     useInvisibleMode?: boolean
     onStatusChange?: (status: any) => void
     onRenderChange?: (state: any) => void
@@ -93,7 +92,6 @@ export class AppStore {
       appId,
       appSecret,
       gatewayServer,
-      config,
       useInvisibleMode = false,
       onStatusChange,
       onRenderChange,
@@ -116,8 +114,6 @@ export class AppStore {
     }
 
     // 禁用 ASR（多数字人场景不需要ASR）
-    const finalConfig = { ...config, enable_asr: false, asr_enabled: false }
-
     const constructorOptions: any = {
       containerId: containerId.startsWith('#') ? containerId : `#${containerId}`,
       appId,
@@ -125,7 +121,6 @@ export class AppStore {
       headers: { 'Authorization': '888jn' },
       enableDebugger: false,
       gatewayServer: url.toString(),
-      config: finalConfig,
       onMessage: (error: any) => {
         if (error?.code && error.code !== 0) {
           console.error('SDK错误:', error)

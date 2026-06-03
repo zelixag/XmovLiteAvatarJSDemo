@@ -56,7 +56,6 @@ export interface AppStore {
     appId: string
     appSecret: string
     gatewayServer?: string
-    config: any
     useInvisibleMode?: boolean
     onStatusChange?: (status: any) => void
     onRenderChange?: (state: any) => void

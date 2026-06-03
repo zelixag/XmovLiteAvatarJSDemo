@@ -159,7 +159,6 @@ async function connectAvatar(index: number) {
       appId: avatar.appId,
       appSecret: avatar.appSecret || '',
       gatewayServer: gatewayServer.value,
-      config: {},
       useInvisibleMode,
       onStatusChange: (status: AvatarStatus) => {
         if (status === AvatarStatus.online || status === AvatarStatus.visible) {
