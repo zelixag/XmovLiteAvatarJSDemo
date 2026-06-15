@@ -6,6 +6,9 @@ import { avatarService } from '../services/avatar'
 import { llmService } from '../services/llm'
 import { ActionManager } from '../services/action-manager'
 
+// 全局错误弹窗
+export const errorMessage = ref('')
+
 export const appState = reactive<AppState>({
   avatar: {
     appId: '',
@@ -77,7 +80,7 @@ export class AppStore {
     appId: string
     appSecret: string
     gatewayServer?: string
-    config: any
+    config?: any
     useInvisibleMode?: boolean
     onStatusChange?: (status: any) => void
     onRenderChange?: (state: any) => void
@@ -115,8 +118,7 @@ export class AppStore {
       url.searchParams.append('custom_id', SDK_CONFIG.CUSTOM_ID)
     }
 
-    // 禁用 ASR（多数字人场景不需要ASR）
-    const finalConfig = { ...config, enable_asr: false, asr_enabled: false }
+    const finalConfig = { ...(config || SDK_CONFIG.AVATAR_CONFIG), enable_asr: false, asr_enabled: false }
 
     const constructorOptions: any = {
       containerId: containerId.startsWith('#') ? containerId : `#${containerId}`,
@@ -127,8 +129,11 @@ export class AppStore {
       gatewayServer: url.toString(),
       config: finalConfig,
       onMessage: (error: any) => {
-        if (error?.code && error.code !== 0) {
+        const errorCode = error?.error_code ?? error?.code
+        if (errorCode && errorCode !== 0) {
+          const reason = error?.error_reason || error?.message || '未知错误'
           console.error('SDK错误:', error)
+          errorMessage.value = `[${errorCode}] ${reason}`
         }
         onMessage?.(error)
       }
@@ -242,7 +247,7 @@ export class AppStore {
         if (errorCode && errorCode !== 0) {
           const reason = error?.error_reason || error?.message || '未知错误'
           console.error('SDK错误:', error)
-          alert(`连接失败：${reason}`)
+          errorMessage.value = `[${errorCode}] ${reason}`
           appState.avatar.connected = false
           appState.avatar.instance = null
           avatarInstance.value = null

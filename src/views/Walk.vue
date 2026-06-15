@@ -44,10 +44,6 @@
               <label>App Secret:</label>
               <input v-model="appSecret" type="text" />
             </div>
-            <div class="param-item">
-              <label>Gateway:</label>
-              <input v-model="gatewayServer" type="text" />
-            </div>
           </div>
           <div v-else class="connect-panel">
             <div class="button-group">
@@ -114,8 +110,6 @@ const appStoreInjected = appStore
 
 const appId = ref(appStateInjected?.avatar.appId || '')
 const appSecret = ref(appStateInjected?.avatar.appSecret || '')
-const gatewayServer = ref('https://nebula-agent.xingyun3d.com/user/v1/ttsa/session')
-
 // 独立的数字人实例（不共享）- 使用 shallowRef 优化性能
 const avatarInstance = shallowRef<any>(null)
 const loading = ref(false)
@@ -134,19 +128,6 @@ const speakText = ref(`<speak>
     </ue4event>
 霜降已过，初冬将至。虽然天气渐冷，但荣成市旅游市场依然"热"力十足。频繁冲上热搜，在这背后是荣成市依托本地特色，精准深耕客源市场，优化营销策略，吸引更多游客"奔荣而来"探访"诗与远方"。
 </speak>`)
-
-// 配置常量 - 提取为常量避免重复创建
-const defaultLayout = {
-  container: { size: [1440, 810] },
-  avatar: { v_align: "center", h_align: "middle", scale: 0.3, offset_x: 0, offset_y: 0 }
-} as const;
-
-const defaultWalkConfig = {
-  min_x_offset: -500,
-  max_x_offset: 500,
-  walk_points: { A: -500, B: -400, C: -300, D: -200, E: -100, F: 0, G: 100, H: 200, I: 300, J: 400, K: 500 },
-  init_point: 0
-} as const;
 
 async function connectAvatar() {
   if (!appId.value || !appSecret.value) {
@@ -167,43 +148,11 @@ async function connectAvatar() {
       return
     }
 
-    const walkConfig = {
-      look_name: "FF008_6530_new",
-      tts_vcn_id: "XMOV_HN_TTS__4",
-      is_large_model: false,
-      sta_face_id: "F_CN02_yuxuan",
-      mp_service_id: "F_CN02_show52_walk_test",
-      figure_name: "SCF25_001",
-      lite_drive_style: "lively",
-      background_img: "https://media.youyan.xyz/youyan/images/shot_layer_library/2D_background/ppt_train_02__2D_background.png",
-      frame_rate: 24,
-      optional_emotion: "",
-      init_events: [{
-        data: {
-          axis_id: 1,
-          height: 1,
-          image: "https://media.xingyun3d.com/xingyun3d/general/litehuman/background_2D/jushen_v1_black_and_gold_style_office_02.png",
-          width: 1,
-          x_location: 0,
-          y_location: 0
-        },
-        type: "widget_pic"
-      }],
-      auto_ka: true,
-      render_preset: "1080x1920_fullbody",
-      layout: defaultLayout,
-      walk_config: defaultWalkConfig,
-      enable_asr: false,
-      asr_enabled: false
-    }
-
     // 创建独立的数字人实例
     avatarInstance.value = await appStoreInjected.createAvatarInstance({
       containerId,
       appId: appId.value,
       appSecret: appSecret.value,
-      gatewayServer: gatewayServer.value,
-      config: walkConfig,
       useInvisibleMode: false,
       onStatusChange: (status: any) => {
         console.log('Walk Status:', status)

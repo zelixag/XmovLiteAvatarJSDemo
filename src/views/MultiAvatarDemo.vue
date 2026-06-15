@@ -131,7 +131,6 @@ const avatars = ref<AvatarInstance[]>([
   { name: '健康顾问', appId: 'f03dc49f43f24236803f7fee2282d4e0', appSecret: '4deb95ddbc3d4e789e5ad6af7924b8a0', instance: null, loading: false, switching: '', status: 'offline' }
 ]);
 
-const gatewayServer = ref('https://test-nebula-agent.xmov.ai/user/v1/ttsa/session');
 
 const currentAvatar = computed(() => {
   return selectedIndex.value >= 0 ? avatars.value[selectedIndex.value] : null;
@@ -158,8 +157,6 @@ async function connectAvatar(index: number) {
       containerId: `avatar-display-${index}`,
       appId: avatar.appId,
       appSecret: avatar.appSecret || '',
-      gatewayServer: gatewayServer.value,
-      config: {},
       useInvisibleMode,
       onStatusChange: (status: AvatarStatus) => {
         if (status === AvatarStatus.online || status === AvatarStatus.visible) {

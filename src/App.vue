@@ -4,6 +4,7 @@ import SdkRender from './components/AvatarRender.vue'
 import MultiAvatarDemo from './views/MultiAvatarDemo.vue'
 import Walk from './views/Walk.vue'
 import CustomEvent from './views/CustomEvent.vue'
+import ErrorModal from './components/ErrorModal.vue'
 import { appState, appStore } from './stores/app'
 
 // 提供全局状态和方法
@@ -81,6 +82,9 @@ const activeComponent = computed(() => {
 
     <!-- 动态组件：根据模式切换 -->
     <component :is="activeComponent" :key="appState.ui.mode" />
+
+    <!-- 全局错误弹窗 -->
+    <ErrorModal />
   </div>
 </template>
 

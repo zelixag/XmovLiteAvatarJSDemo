@@ -92,7 +92,7 @@
           <h3>连接设置</h3>
           <div><label>App ID:</label><input v-model="appId" /></div>
           <div><label>App Secret:</label><input v-model="appSecret" /></div>
-          <div><label>Gateway:</label><input v-model="gatewayServer" /></div>
+
           <div class="btns">
             <button @click="connectAvatar" :disabled="loading || !!avatarInstance">
               {{ loading ? `连接中... ${progress}%` : '连接' }}
@@ -185,7 +185,6 @@ const loading = ref(false)
 const progress = ref(0)
 const appId = ref(appStateInjected?.avatar.appId || '')
 const appSecret = ref(appStateInjected?.avatar.appSecret || '')
-const gatewayServer = ref('https://pre-ttsa-gateway-lite.xingyun3d.com/api/session')
 const callbackMode = ref<'proxy' | 'full'>('proxy')
 const contentTransparent = ref(true) // 默认半透明，避免遮挡数字人
 const displayedContent = ref<Array<{type: string, data: any, timestamp: number}>>([])
@@ -198,35 +197,6 @@ const currentModel3d = computed(() => {
   const model3dItems = displayedContent.value.filter(i => i.type === 'model3d')
   return model3dItems.length > 0 ? model3dItems[model3dItems.length - 1] : null
 })
-
-// 配置常量 - 提取为常量避免重复创建
-const config = {
-  auto_ka: true,
-  cleaning_text: true,
-  emotion_version: "v1_version",
-  figure_name: "SCF25_001",
-  framedata_proto_version: 2,
-  init_events: [],
-  is_large_model: false,
-  is_vertical: true,
-  language: "chinese",
-  lite_drive_style: "service1",
-  llm_name: "Doubao",
-  look_name: "N_Wuliping_14333_new",
-  mp_service_id: "F_CN02_show52",
-  optional_emotion: "serious,smile,confused",
-  pitch: 1,
-  raw_audio: false,
-  render_preset: "1080x1920_fullbody",
-  resolution: { height: 1920, width: 1080 },
-  sta_face_id: "F_lively02_xiaoze",
-  tts_emotion: "neutral",
-  tts_speed: 1,
-  tts_split_length: 16,
-  tts_split_row: 1,
-  tts_vcn_id: "XMOV_HN_TTS__43",
-  volume: 1
-} as const;
 
 // 示例模板
 const templates = [
@@ -450,19 +420,11 @@ async function connectAvatar() {
   progress.value = 0
 
   try {
-    const finalConfig = {
-      ...config,
-      enable_asr: false,
-      asr_enabled: false
-    }
-
     // 创建独立的数字人实例
     avatarInstance.value = await appStoreInjected.createAvatarInstance({
       containerId: containerId.value,
       appId: appId.value,
       appSecret: appSecret.value,
-      gatewayServer: gatewayServer.value,
-      config: finalConfig,
       useInvisibleMode: false,
       onStatusChange: (status: any) => {
         console.log('CustomEvent Status:', status)
